@@ -27,10 +27,14 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+import logging
+
 from thespian.actors import ChildActorExited, ActorAddress
 
 from powerapi.dispatcher import DispatcherActor
 from powerapi.message import EndMessage
+
+from smartwatts.report import FormulaReport
 
 
 class SmartwattsDispatcherActor(DispatcherActor):
@@ -42,3 +46,7 @@ class SmartwattsDispatcherActor(DispatcherActor):
         if self._exit_mode and not self.formula_pool:
             for _, pusher in self.formula_values.pushers.items():
                 self.send(pusher, EndMessage(self.name))
+
+    #Add for formula report ?
+    def receiveMsg_FormulaReport(self, message: FormulaReport, sender: ActorAddress):
+        logging.warn("newly implemented message handler")

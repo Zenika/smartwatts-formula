@@ -51,6 +51,7 @@ from smartwatts.dispatcher import SmartwattsDispatcherActor
 from smartwatts.actor import SmartWattsFormulaActor, SmartwattsValues
 from smartwatts.context import SmartWattsFormulaScope, SmartWattsFormulaConfig
 from smartwatts.topology import CPUTopology
+from .smartwatts_pusher_generator import SmartwattsPusherGenerator
 
 
 def generate_smartwatts_parser():
@@ -180,7 +181,7 @@ def run_smartwatts(args) -> None:
     try:
         logging.info('Starting SmartWatts actors...')
 
-        pusher_generator = PusherGenerator()
+        pusher_generator = SmartwattsPusherGenerator()
         pusher_generator.add_model_factory('FormulaReport', FormulaReport)
         pushers_info = pusher_generator.generate(args)
         pushers_formula = {}
@@ -274,7 +275,6 @@ def get_config():
 
 
 if __name__ == "__main__":
-
     conf = get_config()
     if not SmartwattsConfigValidator.validate(conf):
         sys.exit(-1)

@@ -28,11 +28,21 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import annotations
+from typing import Dict, Any, List, Tuple
 
 from datetime import datetime
 from typing import Dict, Any
 
 from powerapi.report import Report
+
+import logging
+
+try:
+    from influxdb_client import Point
+    from influxdb_client.client.write_api import SYNCHRONOUS
+    from requests.exceptions import ConnectionError
+except ImportError:
+    logging.getLogger().info("influx_client is not installed.")
 
 
 class FormulaReport(Report):
@@ -53,7 +63,7 @@ class FormulaReport(Report):
         self.metadata = metadata
 
     def __repr__(self) -> str:
-        return 'FormulaReport(%s, %s, %s, %s)' % (self.timestamp, self.sensor, self.target, self.metadata)
+        return 'FormulaReport(%s, %s, %s, %s)' % (self.timestamp, self.sensor, self.target, str(self.metadata))
 
     @staticmethod
     def from_json(data: Dict) -> FormulaReport:
@@ -77,3 +87,16 @@ class FormulaReport(Report):
         Cast to mongoDB
         """
         return report.__dict__
+
+    @staticmethod
+    def to_influxdb(report: FormulaReport, tags: List[str]) -> Point:
+        """
+        Cast to InfluxDB
+        """
+        p = Point("formula")
+        for key, value in report._gen_tag(tags).items():
+            p.tag(key, value)
+        for key, value in report.metadata.items():
+            if key != "coef":
+                p.field(key, value)
+        return p
